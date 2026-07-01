@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Programme Sportif — Perte de poids & Muscle</title>
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Programme Sport">
+<style>
+  :root {
+    --accent: #e8632f;
+    --sage: #5f9e72;
+    --bg: #f0e6d8;
+    --card: #fbf5ec;
+    --card2: #e9dcc8;
+    --line: #ddccb2;
+    --text: #2b2622;
+    --muted: #8a8073;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(180deg, var(--bg), #ecdfc9);
+    min-height: 100vh;
+    color: var(--text);
+  }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { scrollbar-width: none; }
+
+  /* HERO */
+  .hero {
+    padding: 32px 20px 24px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-glow-1, .hero-glow-2 {
+    position: absolute;
+    border-radius: 50%;
+  }
+  .hero-glow-1 { top: -50px; right: -50px; width: 220px; height: 220px; }
+  .hero-glow-2 { bottom: -70px; left: -40px; width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(95,158,114,0.16), transparent 70%); }
+  .hero-eyebrow {
+    font-size: 11px; letter-spacing: 3px; font-weight: 800;
+    text-transform: uppercase; margin-bottom: 10px; position: relative;
+  }
+  .hero-title {
+    font-size: 34px; font-weight: 900; line-height: 1.05; letter-spacing: -0.5px;
+    margin-bottom: 10px; position: relative;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero-sub {
+    font-size: 14px; color: #5a5249; line-height: 1.5; max-width: 420px; position: relative;
+  }
+
+  /* DAY SELECTOR */
+  .day-selector {
+    display: flex; gap: 8px; padding: 16px 20px; overflow-x: auto;
+  }
+  .day-btn {
+    flex: 0 0 auto; min-width: 88px; padding: 12px 14px; border-radius: 10px;
+    cursor: pointer; text-align: left; font-family: inherit;
+    background: none; border: 1px solid var(--line);
+  }
+  .day-btn .code { font-size: 10px; font-weight: 800; letter-spacing: 1px; }
+  .day-btn .name { font-size: 13px; font-weight: 700; margin: 2px 0; color: #5a5249; }
+  .day-btn .count { font-size: 10px; font-weight: 700; }
+
+  /* DAY HEADER CARD */
+  .day-card-wrap { padding: 0 20px 16px; }
+  .day-card {
+    border-radius: 14px; padding: 18px 20px; background: var(--card);
+  }
+  .day-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .day-card-code { font-size: 11px; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; }
+  .day-card-focus { font-size: 21px; font-weight: 900; letter-spacing: -0.3px; }
+  .day-card-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .level-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+  .day-card-stats { display: flex; gap: 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+  .stat-value { font-size: 14px; font-weight: 700; }
+  .stat-cardio { font-size: 12.5px; font-weight: 600; color: #5a5249; }
+
+  /* TABS */
+  .tabs { display: flex; margin: 0 20px 16px; border-radius: 10px; padding: 4px; }
+  .tab-btn {
+    flex: 1; padding: 9px; border-radius: 8px; border: none; cursor: pointer;
+    font-weight: 800; font-size: 13px; font-family: inherit; background: transparent; color: #7a6f5f;
+  }
+  .tab-btn.active { color: #fff; }
+
+  /* EXERCISES */
+  .exercises-wrap { padding: 0 20px 8px; }
+  .exercise-card {
+    background: var(--card); border-radius: 12px; margin-bottom: 10px;
+    border: 1px solid var(--line); overflow: hidden;
+  }
+  .exercise-card.open { border-width: 1px; }
+  .exercise-row {
+    padding: 13px 14px; cursor: pointer; display: flex;
+    justify-content: space-between; align-items: center;
+  }
+  .ex-name { font-weight: 800; font-size: 14.5px; margin-bottom: 3px; color: var(--text); }
+  .ex-meta { display: flex; gap: 10px; font-size: 11.5px; flex-wrap: wrap; }
+  .ex-sets { font-weight: 700; }
+  .ex-muscles { color: #9b7a5a; font-weight: 600; }
+  .ex-weight { font-size: 11px; color: var(--sage); font-weight: 700; margin-top: 3px; }
+  .ex-toggle { font-size: 16px; margin-left: 8px; }
+  .exercise-detail { padding: 4px 16px 16px; border-top: 1px solid var(--line); display: none; }
+  .exercise-card.open .exercise-detail { display: block; }
+  .ex-desc { font-size: 13px; color: #4a4339; line-height: 1.6; margin-top: 12px; margin-bottom: 10px; }
+  .ex-box { border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .ex-box-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .ex-box-text { font-size: 12.5px; color: #4a4339; }
+  .ex-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ex-chip { border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; }
+  .cardio-note {
+    border-radius: 12px; padding: 13px 16px; margin-top: 4px;
+    border: 1px dashed; font-size: 12.5px; color: #3f6b4d;
+  }
+
+  /* NUTRITION */
+  .nutrition-wrap { padding: 0 20px 8px; }
+  .nutri-stats { display: flex; gap: 10px; margin-bottom: 12px; }
+  .nutri-stat { flex: 1; border-radius: 12px; padding: 14px 16px; text-align: center; }
+  .nutri-stat-label { font-size: 10.5px; color: #9b7a5a; letter-spacing: 1px; margin-bottom: 4px; font-weight: 700; }
+  .nutri-stat-value { font-size: 20px; font-weight: 900; }
+  .meal-card {
+    background: var(--card); border-radius: 12px; margin-bottom: 9px;
+    padding: 13px 16px; border: 1px solid var(--line);
+  }
+  .meal-label { font-weight: 800; font-size: 12.5px; letter-spacing: 0.5px; margin-bottom: 5px; text-transform: uppercase; }
+  .meal-value { font-size: 13.5px; color: #4a4339; line-height: 1.5; }
+
+  /* PRINCIPLES */
+  .principles-wrap { padding: 28px 20px 16px; }
+  .principles-eyebrow { font-size: 11px; color: var(--accent); font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; }
+  .principles-title { font-size: 19px; font-weight: 900; margin-bottom: 14px; }
+  .principle-row {
+    display: flex; gap: 14px; padding: 14px 12px; margin-bottom: 8px; border-radius: 10px;
+  }
+  .principle-label-col { width: 110px; flex-shrink: 0; }
+  .principle-label { font-size: 12px; color: #9b7a5a; margin-bottom: 2px; }
+  .principle-value { font-size: 14px; font-weight: 800; }
+  .principle-detail { font-size: 12.5px; color: #5a5249; line-height: 1.55; }
+
+  .footer-note {
+    padding: 8px 20px 40px; font-size: 11px; color: var(--muted); text-align: center;
+    border-top: 1px solid var(--line); margin-top: 8px; padding-top: 20px;
+  }
+  .main-nav-btn {
+    flex: 0 0 auto; padding: 9px 18px; border-radius: 20px; cursor: pointer;
+    font-weight: 800; font-size: 12px; font-family: inherit;
+    background: transparent; border: 1px solid #ddccb2; color: #8a8073;
+    margin-bottom: 14px; white-space: nowrap;
+  }
+  .main-nav-btn.active {
+    background: #e8632f; color: #fff; border-color: #e8632f;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero" id="hero">
+  <div class="hero-glow-1" id="heroGlow1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-eyebrow" id="heroEyebrow">Programme Salle de Sport · 5 jours</div>
+  <div class="hero-title" id="heroTitle">PERTE DE POIDS<br>RAPIDE & MUSCLE</div>
+  <div class="hero-sub">25 ans · 102 kg · 1m80 — priorité perte de poids, en construisant du muscle en parallèle. Cinq séances full body en salle, du lundi au vendredi, cardio intégré à chaque séance.</div>
+</div>
+
+<!-- MAIN NAV -->
+<div class="scrollbar-none" style="display:flex;gap:8px;padding:14px 20px 0;overflow-x:auto;border-bottom:1px solid #ddccb2;background:#fbf5ec;">
+  <button class="main-nav-btn active" id="navProgramme" onclick="setSection('programme')">💪 PROGRAMME</button>
+  <button class="main-nav-btn" id="navMilkshakes" onclick="setSection('milkshakes')">🥤 MILKSHAKES</button>
+  <button class="main-nav-btn" id="navCourses" onclick="setSection('courses')">🛒 COURSES</button>
+</div>
+
+<!-- PROGRAMME SECTION -->
+<div id="sectionProgramme">
+
+<div class="day-selector scrollbar-none" id="daySelector"></div>
+
+<div class="day-card-wrap">
+  <div class="day-card" id="dayCard"></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" id="tabExercises" onclick="setTab('exercises')">EXERCICES</button>
+  <button class="tab-btn" id="tabNutrition" onclick="setTab('nutrition')">NUTRITION</button>
+</div>
+
+<div class="exercises-wrap" id="exercisesWrap"></div>
+<div class="nutrition-wrap" id="nutritionWrap" style="display:none;"></div>
+
+<div class="principles-wrap">
+  <div class="principles-eyebrow">RÈGLES DE BASE</div>
+  <div class="principles-title">Ce qui fait vraiment la différence</div>
+  <div id="principlesWrap"></div>
+</div>
+
+<div class="footer-note">
+  Programme indicatif — adapte les charges à ton ressenti et écoute ton corps. Si la perte de poids stagne après 3 semaines, réduis légèrement les calories ou ajoute 10 min de cardio.
+</div>
+
+</div><!-- end sectionProgramme -->
+
+<!-- MILKSHAKES SECTION -->
+<div id="sectionMilkshakes" style="display:none;padding:20px;">
+  <div style="font-size:11px;letter-spacing:3px;color:#e8632f;font-weight:800;text-transform:uppercase;margin-bottom:4px;">NUTRITION SPÉCIALE</div>
+  <div style="font-size:22px;font-weight:900;margin-bottom:6px;">Milkshakes & Whey</div>
+  <div style="font-size:13px;color:#8a8073;margin-bottom:20px;line-height:1.5;">Quand prendre quoi, comment le préparer, et pourquoi ça aide pour perdre du poids tout en gardant le muscle.</div>
+  <div id="milkshakesWrap"></div>
+</div>
+
+<!-- COURSES SECTION -->
+<div id="sectionCourses" style="display:none;padding:20px;">
+  <div style="font-size:11px;letter-spacing:3px;color:#e8632f;font-weight:800;text-transform:uppercase;margin-bottom:4px;">2 SEMAINES</div>
+  <div style="font-size:22px;font-weight:900;margin-bottom:6px;">Liste de courses</div>
+  <div style="font-size:13px;color:#8a8073;margin-bottom:6px;line-height:1.5;">Tout ce qu'il te faut pour 2 semaines de programme. Coche au fur et à mesure.</div>
+  <div style="display:flex;gap:10px;margin-bottom:16px;">
+    <div style="flex:1;background:#fff8f0;border:1px solid #e8632f33;border-radius:12px;padding:12px;text-align:center;">
+      <div style="font-size:10px;color:#8a8073;font-weight:700;letter-spacing:1px;margin-bottom:3px;">BUDGET TOTAL</div>
+      <div style="font-size:18px;font-weight:900;color:#e8632f;">≈ 65-75 €</div>
+    </div>
+    <div style="flex:1;background:#f0faf4;border:1px solid #5f9e7233;border-radius:12px;padding:12px;text-align:center;">
+      <div style="font-size:10px;color:#8a8073;font-weight:700;letter-spacing:1px;margin-bottom:3px;">PAR JOUR</div>
+      <div style="font-size:18px;font-weight:900;color:#5f9e72;">≈ 4,80 €</div>
+    </div>
+  </div>
+  <div id="coursesWrap"></div>
+</div>
+
+<script>
+const ACCENT = "#e8632f";
+const SAGE = "#5f9e72";
+const CARD2 = "#e9dcc8";
+const MUTED = "#8a8073";
+
+const days = [
+  {
+    day: "LUNDI", code: "J1", focus: "Full Body + Cardio", sub: "Haut du corps prioritaire",
+    color: ACCENT, duration: "60 min", level: "Intense",
+    exercises: [
+      { name: "Rameur (échauffement)", sets: "1 × 5 min", rest: "2 min", weight: "Résistance niveau 4-6/10, rythme régulier", muscles: "Cardio · Corps entier",
+        desc: "Pieds calés, genoux fléchis. Pousse avec les jambes d'abord, puis tire la poignée vers le nombril en redressant le buste. Reviens dans l'ordre inverse en contrôlant.",
+        tip: "Sert à monter la fréquence cardiaque avant les charges, pas à viser la performance.",
+        why: "Échauffe tout le corps en quelques minutes et démarre la dépense calorique." },
+      { name: "Développé couché (barre ou machine)", sets: "4 × 10", rest: "75s", weight: "Barre à vide (20 kg) + 2,5 à 5 kg par côté pour commencer", muscles: "Pectoraux · Triceps · Épaules",
+        desc: "Allongé sur le banc, barre au-dessus de la poitrine, prise un peu plus large que les épaules. Descends la barre jusqu'à toucher légèrement le torse, puis pousse vers le haut sans bloquer les coudes en extension complète.",
+        tip: "Garde les omoplates serrées contre le banc tout le mouvement.",
+        why: "Exercice de base pour construire le haut du corps, fort recrutement musculaire." },
+      { name: "Tirage vertical (Lat Pulldown)", sets: "4 × 12", rest: "75s", weight: "30 à 45 kg sur la machine", muscles: "Dos · Biceps",
+        desc: "Cale les cuisses sous les appuis, prise large en pronation. Tire la barre vers le haut de la poitrine en ramenant les coudes vers le bas et l'arrière, puis redescends lentement bras tendus.",
+        tip: "Pense à 'casser une noix entre les omoplates' en tirant.",
+        why: "Équilibre le développé couché en travaillant la chaîne postérieure du haut du corps." },
+      { name: "Squat (Smith Machine ou guidé)", sets: "4 × 12", rest: "90s", weight: "Barre à vide (15-20 kg) + 10 à 20 kg par côté", muscles: "Quadriceps · Fessiers · Cuisses",
+        desc: "Barre sur les trapèzes, pieds largeur épaules. Descends en contrôlant jusqu'aux cuisses parallèles au sol, puis remonte en poussant dans les talons sans bloquer les genoux.",
+        tip: "Le squat est l'exercice qui brûle le plus de calories à lui seul : ne le saute jamais.",
+        why: "Recrute les plus gros muscles du corps, donc la plus grosse dépense énergétique par série." },
+      { name: "Triceps poulie haute (pushdown)", sets: "3 × 15", rest: "60s", weight: "15 à 25 kg sur la poulie", muscles: "Triceps",
+        desc: "Face à la poulie haute, barre droite ou corde en prise pronation. Coudes fixes le long du corps, pousse la barre vers le bas en tendant complètement les bras, puis remonte lentement sans bouger les coudes.",
+        tip: "Seuls les avant-bras bougent : les coudes restent collés au corps du début à la fin.",
+        why: "Isole bien le triceps en complément du développé couché, exercice très précis à la poulie." },
+      { name: "Tapis de course — fin de séance", sets: "15 min", rest: "—", weight: "Marche rapide inclinée 8-10%, 5,5-6 km/h", muscles: "Cardio · Brûle-graisse",
+        desc: "Marche rapide en montée sur tapis incliné. Garde un rythme soutenu où tu peux encore parler mais avec un peu d'effort (zone cardio modérée).",
+        tip: "C'est l'un des meilleurs outils pour brûler du gras sans fatiguer les articulations.",
+        why: "Complète la séance par une dépense calorique pure, sans interférer avec la récupération musculaire." },
+    ],
+    cardio: "Rameur (échauffement) + tapis incliné 15 min déjà inclus dans la séance",
+    nutrition: { calories: "≈ 2250 kcal — déficit modéré", proteines: "180 g",
+      petit_dej: "4 œufs entiers + 60g flocons d'avoine + 1 banane",
+      dejeuner: "200 g poulet (cuit en grande quantité pour la semaine) + 150 g riz + légumes surgelés",
+      collation: "1 shaker whey (30g) après l'entraînement + 1 cuillère de miel",
+      diner: "Omelette 4 œufs + 1 patate (200g) + 1 courgette — le combo du soir",
+      hydratation: "3 L d'eau du robinet" },
+  },
+  {
+    day: "MARDI", code: "J2", focus: "Cardio & Abdos", sub: "Brûle-graisse intensif",
+    color: "#e8a23a", duration: "50 min", level: "Intense",
+    exercises: [
+      { name: "Vélo elliptique — corps entier", sets: "25 min", rest: "—", weight: "Résistance 8-12/20, garder 65-75% FC max", muscles: "Cardio · Corps entier",
+        desc: "Mouvement fluide en poussant avec les jambes et en tirant avec les bras simultanément. Garde un rythme stable que tu peux maintenir tout le temps sans t'arrêter.",
+        tip: "C'est l'exercice cardio le plus complet : il sollicite jambes ET bras en même temps.",
+        why: "Brûle un maximum de calories en ménageant les articulations, idéal en période de perte de poids." },
+      { name: "Tapis de course — HIIT", sets: "10 × (30s sprint / 60s marche)", rest: "Sans pause entre les rounds", weight: "Marche 6 km/h · Sprint 12-15 km/h · inclinaison 0-2%", muscles: "Cardio · Brûle-graisse intense",
+        desc: "Marche rapide 60 secondes, puis sprint à fond pendant 30 secondes. Répète 10 fois. Adapte la vitesse de sprint à ton niveau : tu dois être à bout de souffle à la fin de chaque sprint.",
+        tip: "Le HIIT continue de brûler des calories plusieurs heures après l'effort (effet afterburn).",
+        why: "Méthode la plus efficace pour accélérer la perte de gras en peu de temps." },
+      { name: "Cable Crunch (poulie haute)", sets: "4 × 20", rest: "45s", weight: "20 à 35 kg sur la poulie", muscles: "Grand droit de l'abdomen",
+        desc: "À genoux face à la poulie haute, corde tenue près des oreilles. Contracte les abdos pour fléchir le buste vers le bas, nez vers les genoux, puis reviens lentement sans relâcher la tension.",
+        tip: "Le mouvement vient uniquement des abdos, pas des bras qui ne font que tenir la corde.",
+        why: "Permet de charger les abdos progressivement à la poulie, comme n'importe quel autre muscle." },
+      { name: "Relevé de jambes (barres parallèles)", sets: "4 × 15", rest: "60s", weight: "Poids du corps", muscles: "Bas du ventre",
+        desc: "Suspendu aux barres parallèles, dos collé au dossier. Lève les genoux vers la poitrine en contractant le bas du ventre, puis redescends lentement sans balancer.",
+        tip: "Pour progresser, tends les jambes au lieu de les plier.",
+        why: "Cible la partie basse des abdos, souvent la dernière zone à se dessiner." },
+      { name: "Gainage (planche)", sets: "4 × 45 sec", rest: "45s", weight: "Poids du corps", muscles: "Abdos profonds · Dos",
+        desc: "Appui sur les avant-bras et les orteils, corps aligné de la tête aux talons, ventre rentré. Respire calmement et tiens la position sans laisser tomber les hanches.",
+        tip: "Contracte les fessiers en plus des abdos pour mieux tenir la position.",
+        why: "Stabilise le tronc et protège le dos pendant les autres exercices de la semaine." },
+    ],
+    cardio: "Vélo elliptique + HIIT tapis déjà inclus dans la séance",
+    nutrition: { calories: "≈ 2150 kcal — jour cardio intense", proteines: "175 g",
+      petit_dej: "4 œufs entiers + 2 tranches de pain + 1 banane",
+      dejeuner: "200 g poulet (du batch cooking) + 200 g pâtes + sauce tomate maison",
+      collation: "1 grand bol de fromage blanc (300g) + 1 fruit",
+      diner: "Lentilles (200g cuites) + 1 œuf + légumes surgelés",
+      hydratation: "3 L d'eau du robinet" },
+  },
+  {
+    day: "MERCREDI", code: "J3", focus: "Full Body + Cardio", sub: "Bas du corps prioritaire",
+    color: "#9b7ee8", duration: "60 min", level: "Intense",
+    exercises: [
+      { name: "Vélo (échauffement)", sets: "5 min", rest: "—", weight: "Résistance légère 4-6/20", muscles: "Cardio · Échauffement",
+        desc: "Pédalage souple à rythme modéré pour faire monter la température corporelle et préparer les articulations avant les charges lourdes.",
+        tip: "L'objectif est juste de te mettre en sueur légèrement, pas de te fatiguer.",
+        why: "Réduit le risque de blessure sur les exercices lourds qui suivent." },
+      { name: "Soulevé de terre roumain (RDL)", sets: "4 × 10", rest: "90s", weight: "Barre à vide (20 kg) + 10 à 20 kg par côté", muscles: "Ischios · Fessiers · Bas du dos",
+        desc: "Barre devant les cuisses, légèrement plié aux genoux. Penche le buste en avant en faisant glisser la barre le long des jambes jusqu'à sentir l'étirement à l'arrière des cuisses, puis remonte en poussant les hanches vers l'avant.",
+        tip: "Le dos reste toujours droit : ce sont les hanches qui plient, jamais la colonne.",
+        why: "Mouvement le plus efficace pour la chaîne postérieure complète (dos-fessiers-ischios)." },
+      { name: "Leg Press", sets: "4 × 12", rest: "75s", weight: "40 à 70 kg sur la machine (en plus du plateau)", muscles: "Quadriceps · Fessiers",
+        desc: "Pieds posés largeur épaules sur la plateforme. Déverrouille les sécurités, descends lentement la plateforme vers toi, puis repousse en contractant les jambes sans bloquer les genoux en haut.",
+        tip: "Permet de charger lourd en toute sécurité, parfait pour fatiguer les jambes en fin de séance.",
+        why: "Construit du volume musculaire sur les jambes, qui sont les plus gros consommateurs de calories." },
+      { name: "Rowing poulie basse", sets: "4 × 12", rest: "75s", weight: "25 à 40 kg sur la poulie", muscles: "Dos moyen · Trapèzes · Biceps",
+        desc: "Assis face à la poulie basse, pieds calés sur les appuis, genoux légèrement fléchis. Tire la poignée vers le ventre en serrant les omoplates, coudes le long du corps, puis redescends lentement dos droit sans t'avachir.",
+        tip: "Évite de te balancer en arrière pour tirer : le mouvement vient du dos, pas du tronc.",
+        why: "Donne de l'épaisseur au dos, équilibre visuellement le développement du torse." },
+      { name: "Curl biceps poulie basse", sets: "3 × 12", rest: "60s", weight: "15 à 25 kg sur la poulie", muscles: "Biceps",
+        desc: "Debout face à la poulie basse, barre droite ou corde en prise supination. Coudes fixes le long du corps, fléchis pour monter la barre vers les épaules, puis redescends lentement sans balancer le buste.",
+        tip: "La tension de la poulie reste constante tout le mouvement, contrairement aux haltères : profites-en pour bien sentir la contraction.",
+        why: "Finisher simple qui complète le travail du dos en ciblant directement les bras, avec une tension continue." },
+      { name: "Rameur — fin de séance", sets: "15 min en continu", rest: "—", weight: "Résistance 5-7/10, rythme 20-24 coups/min", muscles: "Cardio · Corps entier",
+        desc: "Pieds calés, genoux fléchis. Pousse avec les jambes d'abord, puis tire la poignée vers le nombril. Garde un rythme stable et soutenu pendant toute la durée.",
+        tip: "Termine la séance jambes fatiguées par un cardio qui finit d'épuiser les réserves de glycogène.",
+        why: "Maximise la dépense calorique totale de la séance, complément idéal après les jambes." },
+    ],
+    cardio: "Vélo échauffement + rameur 15 min déjà inclus dans la séance",
+    nutrition: { calories: "≈ 2300 kcal — jour jambes intense", proteines: "185 g",
+      petit_dej: "4 œufs entiers + 60g flocons d'avoine + 1 banane",
+      dejeuner: "200 g poulet (du batch cooking) + 200 g riz + légumes surgelés",
+      collation: "1 shaker whey (30g) après l'entraînement + 1 fruit",
+      diner: "Omelette 4 œufs + 1 patate (200g) + 1 courgette — le combo du soir",
+      hydratation: "3 L d'eau du robinet" },
+  },
+  {
+    day: "JEUDI", code: "J4", focus: "Cardio & Abdos", sub: "Récupération active + brûlage",
+    color: SAGE, duration: "45 min", level: "Modéré",
+    exercises: [
+      { name: "Marche inclinée tapis", sets: "30 min", rest: "—", weight: "Inclinaison 10-12%, vitesse 5-5,5 km/h", muscles: "Cardio · Bas du corps",
+        desc: "Marche soutenue en forte inclinaison, sans courir. Tu dois pouvoir tenir une conversation mais avec un effort clairement perceptible dans les jambes.",
+        tip: "C'est l'exercice cardio le plus sûr pour brûler du gras sans fatiguer le système nerveux avant les séances de muscu.",
+        why: "Permet une grosse dépense calorique tout en laissant le corps récupérer des séances de force." },
+      { name: "Cable Crunch (poulie haute)", sets: "4 × 15", rest: "45s", weight: "20 à 35 kg sur la poulie", muscles: "Abdos",
+        desc: "À genoux face à la poulie haute, corde tenue près des oreilles. Contracte les abdos pour fléchir le buste vers le bas, nez vers les genoux, puis reviens lentement.",
+        tip: "Le mouvement vient uniquement des abdos, pas des bras qui ne font que tenir la corde.",
+        why: "Permet de charger les abdos progressivement comme n'importe quel autre muscle." },
+      { name: "Russian Twist (disque)", sets: "3 × 20 (10/côté)", rest: "45s", weight: "Disque de 5 à 10 kg", muscles: "Obliques",
+        desc: "Assis au sol, genoux fléchis, dos incliné à 45°. Tiens un disque et tourne le buste de gauche à droite en le touchant près du sol de chaque côté.",
+        tip: "Lève les pieds du sol pour intensifier l'exercice si tu veux plus de difficulté.",
+        why: "Dessine la taille en travaillant la rotation du tronc, complète le travail frontal des abdos." },
+      { name: "Gainage latéral", sets: "3 × 40 sec / côté", rest: "45s", weight: "Poids du corps", muscles: "Obliques · Hanche",
+        desc: "Appui sur l'avant-bras et le pied du bas, corps aligné, hanche levée. Maintiens sans laisser tomber la hanche.",
+        tip: "Lève le bras libre vers le plafond pour augmenter la difficulté si c'est trop facile.",
+        why: "Stabilise le tronc latéralement, complète la planche classique." },
+    ],
+    cardio: "30 min de marche inclinée déjà incluse en début de séance",
+    nutrition: { calories: "≈ 2150 kcal", proteines: "175 g",
+      petit_dej: "4 œufs entiers + 2 tranches de pain + 1 banane",
+      dejeuner: "200 g poulet (du batch cooking) + 150 g riz + légumes surgelés",
+      collation: "1 grand bol de fromage blanc (300g) + 1 fruit",
+      diner: "Lentilles (200g cuites) + 1 œuf + légumes surgelés",
+      hydratation: "3 L d'eau du robinet" },
+  },
+  {
+    day: "VENDREDI", code: "J5", focus: "Full Body — Finisher", sub: "Circuit complet de la semaine",
+    color: "#4fa8d8", duration: "55 min", level: "Intense",
+    exercises: [
+      { name: "Rameur (échauffement)", sets: "5 min", rest: "—", weight: "Résistance niveau 4-6/10", muscles: "Cardio · Échauffement",
+        desc: "Mouvement complet à rythme modéré pour préparer le corps avant le circuit qui suit.",
+        tip: "Sers-t'en pour bien sentir tes muscles avant de monter en intensité.",
+        why: "Prépare l'ensemble du corps avant un enchaînement plus exigeant." },
+      { name: "Goblet Squat", sets: "4 × 15", rest: "60s", weight: "Haltère ou kettlebell de 16 à 24 kg", muscles: "Jambes · Fessiers · Cardio",
+        desc: "Haltère tenu contre la poitrine, pieds écartés. Descends en squat profond, puis remonte avec contrôle en contractant les fessiers en haut.",
+        tip: "Excellent pour finir les jambes en fin de semaine sans solliciter le bas du dos.",
+        why: "Combine renforcement musculaire et dépense cardio dans un seul mouvement." },
+      { name: "Pompes (lestées si possible)", sets: "4 × 15", rest: "60s", weight: "Poids du corps, ou gilet lesté 5-10 kg si maîtrisé", muscles: "Pectoraux · Triceps · Épaules",
+        desc: "Mains légèrement plus larges que les épaules, corps aligné de la tête aux pieds. Descends la poitrine vers le sol en fléchissant les coudes à 45°, puis pousse pour remonter.",
+        tip: "Si 15 reps sont trop faciles, surélève les pieds ou ajoute du lest.",
+        why: "Travaille le haut du corps sans matériel, complète parfaitement le développé couché du lundi." },
+      { name: "Tirage unilatéral poulie basse", sets: "3 × 12 / bras", rest: "60s", weight: "15 à 25 kg sur la poulie", muscles: "Dos · Biceps",
+        desc: "Debout ou assis face à la poulie basse, poignée simple dans une main. Tire la poignée vers la hanche en gardant le coude près du corps et le buste stable, puis redescends lentement bras tendu.",
+        tip: "Garde le buste droit, ne tourne pas le tronc pour t'aider à tirer.",
+        why: "Travail unilatéral qui corrige les déséquilibres entre les deux côtés du dos, avec une tension constante à la poulie." },
+      { name: "Fente avant haltères", sets: "3 × 12 / jambe", rest: "60s", weight: "2 haltères de 10 à 16 kg", muscles: "Jambes · Fessiers · Équilibre",
+        desc: "Un haltère dans chaque main, fais un grand pas en avant, descends le genou arrière vers le sol sans le poser. Pousse dans le talon avant pour revenir, puis alterne.",
+        tip: "Garde le buste droit, regarde devant toi pour ne pas perdre l'équilibre.",
+        why: "Termine la semaine jambes avec un mouvement fonctionnel et un bon coût calorique." },
+      { name: "Tapis de course — sprint final", sets: "12 min — 8 × (20s sprint / 40s marche)", rest: "Sans pause entre les rounds", weight: "Marche 5,5 km/h · Sprint 13-16 km/h", muscles: "Cardio · Brûle-graisse",
+        desc: "Marche rapide 40 secondes, puis sprint à fond pendant 20 secondes. Répète 8 fois pour clôturer la semaine sur un pic d'intensité.",
+        tip: "C'est court mais intense : vise un sprint à fond, pas un jogging.",
+        why: "Termine la semaine sur la méthode la plus efficace pour maximiser la perte de gras." },
+    ],
+    cardio: "Rameur échauffement + sprint final tapis déjà inclus dans la séance",
+    nutrition: { calories: "≈ 2250 kcal", proteines: "180 g",
+      petit_dej: "4 œufs entiers + 60g flocons d'avoine + 1 banane",
+      dejeuner: "200 g poulet (du batch cooking) + 200 g pâtes + sauce tomate maison",
+      collation: "1 shaker whey (30g) après l'entraînement + 1 fruit",
+      diner: "Omelette 4 œufs + 1 patate (200g) + 1 courgette — le combo du soir",
+      hydratation: "3 L d'eau du robinet" },
+  },
+  {
+    day: "SAMEDI", code: "J6", focus: "Jour de repos", sub: "Pas de séance — récupération",
+    color: "#c98a4a", duration: "0 min", level: "Repos",
+    exercises: [],
+    cardio: "Pas de cardio prévu — marche ou activité légère si tu en as envie, sans obligation",
+    nutrition: { calories: "≈ 2050 kcal — jour sans sport", proteines: "170 g",
+      petit_dej: "4 œufs entiers + 2 tranches de pain + 1 banane",
+      dejeuner: "200 g poulet ou dinde (du batch cooking) + 150 g riz + légumes surgelés",
+      collation: "1 grand bol de fromage blanc (300g) + 1 fruit",
+      diner: "1 boîte de thon (140g) + 100 g pâtes + légumes surgelés",
+      hydratation: "2,5 L d'eau du robinet" },
+  },
+  {
+    day: "DIMANCHE", code: "J7", focus: "Jour de repos", sub: "Pas de séance — récupération",
+    color: "#c98a4a", duration: "0 min", level: "Repos",
+    exercises: [],
+    cardio: "Pas de cardio prévu — profite du repos, prépare ton batch cooking pour la semaine",
+    nutrition: { calories: "≈ 2050 kcal — jour sans sport", proteines: "170 g",
+      petit_dej: "4 œufs entiers + 60g flocons d'avoine + 1 banane",
+      dejeuner: "Lentilles (200g cuites) + 1 œuf + légumes surgelés",
+      collation: "1 grand bol de fromage blanc (300g) + 1 fruit",
+      diner: "200 g poulet ou dinde + 100 g riz + légumes surgelés",
+      hydratation: "2,5 L d'eau du robinet" },
+  },
+];
+
+const principles = [
+  { label: "Déficit calorique", value: "≈ 2150-2300 kcal/j", detail: "Calculé pour ton profil (102 kg, 25 ans, actif) : assez agressif pour perdre vite, assez modéré pour préserver le muscle. Évite de descendre plus bas sans suivi." },
+  { label: "Protéines", value: "175-185 g / jour", detail: "Environ 1,8g par kg de poids de corps. C'est le levier numéro 1 pour perdre du gras sans perdre de muscle en période de restriction calorique." },
+  { label: "Hydratation", value: "3 L / jour minimum", detail: "Plus si grosse sudation pendant les séances cardio intenses. Aide à la satiété et à la récupération." },
+  { label: "Sommeil", value: "7-8 h / nuit", detail: "Un manque de sommeil augmente la faim et réduit la capacité à perdre du gras, même avec un bon déficit calorique." },
+  { label: "Aliments à limiter", value: "Alcool, sodas, fritures", detail: "Pas besoin de tout supprimer, mais ce sont les premiers postes à réduire pour accélérer la perte de poids sans souffrir." },
+  { label: "Suivi du poids", value: "1 pesée / semaine", detail: "Le matin à jeun, toujours dans les mêmes conditions. Le poids peut stagner certaines semaines : regarde la tendance sur 3-4 semaines, pas un jour isolé." },
+  { label: "Rythme de perte", value: "0,7 à 1 kg / semaine", detail: "C'est un rythme rapide mais soutenable avec ton poids de départ. Si ça stagne après 2-3 semaines, on réajustera les calories ensemble." },
+  { label: "Astuce budget", value: "Achète en gros", detail: "Cuis 1 à 1,5 kg de poulet et 1 kg de riz/pâtes le dimanche pour toute la semaine (batch cooking). Œufs, thon en boîte, fromage blanc et lentilles sont les protéines les moins chères au kilo." },
+  { label: "Whey", value: "1 dose après le sport", detail: "Une dose de whey (≈30g) apporte autant de calories et de protéines qu'un grand bol de fromage blanc — c'est juste plus rapide à boire après l'entraînement. Elle remplace le fromage blanc les jours de force (lundi, mercredi, vendredi), sans changer ton total calorique ni protéique." },
+];
+
+const levelColor = { "Modéré": SAGE, "Intense": ACCENT, "Repos": "#c98a4a" };
+
+let selectedDay = 0;
+let openExercise = null;
+let activeTab = "exercises";
+
+function hexAlpha(hex, alphaHex) {
+  return hex + alphaHex;
+}
+
+function renderHero() {
+  const d = days[selectedDay];
+  document.getElementById('hero').style.background = `linear-gradient(135deg, ${hexAlpha(d.color,'1c')}, #f0e6d8 60%)`;
+  document.getElementById('heroGlow1').style.background = `radial-gradient(circle, ${hexAlpha(d.color,'3d')}, transparent 70%)`;
+  document.getElementById('heroEyebrow').style.color = d.color;
+  document.getElementById('heroTitle').style.background = `linear-gradient(120deg, ${d.color}, ${SAGE})`;
+  document.getElementById('heroTitle').style.webkitBackgroundClip = 'text';
+}
+
+function renderDaySelector() {
+  const wrap = document.getElementById('daySelector');
+  wrap.innerHTML = '';
+  days.forEach((d, i) => {
+    const active = selectedDay === i;
+    const btn = document.createElement('button');
+    btn.className = 'day-btn';
+    btn.style.border = active ? `2px solid ${d.color}` : `1px solid ${hexAlpha(d.color,'40')}`;
+    btn.style.background = active ? hexAlpha(d.color,'26') : hexAlpha(d.color,'0a');
+    btn.innerHTML = `
+      <div class="code" style="color:${d.color}">${d.code}</div>
+      <div class="name" style="color:${active ? '#2b2622' : '#5a5249'}">${d.day.slice(0,3)}</div>
+      <div class="count" style="color:${d.color}">${d.exercises.length === 0 ? 'Repos' : d.exercises.length + ' exos'}</div>
+    `;
+    btn.onclick = () => { selectedDay = i; openExercise = null; activeTab = 'exercises'; renderAll(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderDayCard() {
+  const d = days[selectedDay];
+  const card = document.getElementById('dayCard');
+  card.style.background = `linear-gradient(135deg, ${hexAlpha(d.color,'14')}, #fbf5ec)`;
+  card.style.borderLeft = `4px solid ${d.color}`;
+  card.style.border = `1px solid ${hexAlpha(d.color,'33')}`;
+  const lc = levelColor[d.level];
+  card.innerHTML = `
+    <div class="day-card-top">
+      <div>
+        <div class="day-card-code" style="color:${d.color}">${d.code} · ${d.day}</div>
+        <div class="day-card-focus">${d.focus}</div>
+        <div class="day-card-sub">${d.sub}</div>
+      </div>
+      <span class="level-badge" style="background:${hexAlpha(lc,'22')};color:${lc}">${d.level}</span>
+    </div>
+    <div class="day-card-stats">
+      <div><div class="stat-label">DURÉE</div><div class="stat-value">${d.duration}</div></div>
+      <div><div class="stat-label">EXERCICES</div><div class="stat-value">${d.exercises.length}</div></div>
+      <div style="flex:1"><div class="stat-label">CARDIO</div><div class="stat-cardio">${d.cardio}</div></div>
+    </div>
+  `;
+}
+
+function renderTabs() {
+  const d = days[selectedDay];
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.style.background = hexAlpha(d.color,'12');
+  tabsEl.style.border = `1px solid ${hexAlpha(d.color,'33')}`;
+  const exBtn = document.getElementById('tabExercises');
+  const nutBtn = document.getElementById('tabNutrition');
+  exBtn.classList.toggle('active', activeTab === 'exercises');
+  nutBtn.classList.toggle('active', activeTab === 'nutrition');
+  exBtn.style.background = activeTab === 'exercises' ? d.color : 'transparent';
+  nutBtn.style.background = activeTab === 'nutrition' ? d.color : 'transparent';
+  document.getElementById('exercisesWrap').style.display = activeTab === 'exercises' ? 'block' : 'none';
+  document.getElementById('nutritionWrap').style.display = activeTab === 'nutrition' ? 'block' : 'none';
+}
+
+function setTab(tab) {
+  activeTab = tab;
+  renderTabs();
+}
+
+function toggleExercise(i) {
+  openExercise = openExercise === i ? null : i;
+  renderExercises();
+}
+
+function renderExercises() {
+  const d = days[selectedDay];
+  const wrap = document.getElementById('exercisesWrap');
+  wrap.innerHTML = '';
+
+  if (d.exercises.length === 0) {
+    const restMsg = document.createElement('div');
+    restMsg.style.background = '#fbf5ec';
+    restMsg.style.border = `1px solid ${hexAlpha(d.color,'33')}`;
+    restMsg.style.borderLeft = `4px solid ${d.color}`;
+    restMsg.style.borderRadius = '14px';
+    restMsg.style.padding = '20px';
+    restMsg.style.textAlign = 'center';
+    restMsg.style.marginBottom = '10px';
+    restMsg.innerHTML = `
+      <div style="font-size:28px;margin-bottom:8px;">😴</div>
+      <div style="font-weight:800;font-size:15px;margin-bottom:6px;">Pas de séance aujourd'hui</div>
+      <div style="font-size:13px;color:#5a5249;line-height:1.5;">Profite du repos, ton corps en a besoin pour récupérer et progresser. Continue de bien manger pour rester dans ton objectif.</div>
+    `;
+    wrap.appendChild(restMsg);
+
+    const cardioNote = document.createElement('div');
+    cardioNote.className = 'cardio-note';
+    cardioNote.style.background = hexAlpha(SAGE,'14');
+    cardioNote.style.borderColor = hexAlpha(SAGE,'55');
+    cardioNote.innerHTML = `<strong style="color:${SAGE}">À savoir — </strong>${d.cardio}`;
+    wrap.appendChild(cardioNote);
+    return;
+  }
+
+  d.exercises.forEach((ex, i) => {
+    const isOpen = openExercise === i;
+    const card = document.createElement('div');
+    card.className = 'exercise-card' + (isOpen ? ' open' : '');
+    card.style.borderColor = isOpen ? hexAlpha(d.color,'66') : '#ddccb2';
+    card.innerHTML = `
+      <div class="exercise-row">
+        <div>
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-meta">
+            <span class="ex-sets" style="color:${d.color}">${ex.sets}</span>
+            <span class="ex-muscles">${ex.muscles}</span>
+          </div>
+          <div class="ex-weight">⚖ ${ex.weight}</div>
+        </div>
+        <span class="ex-toggle" style="color:${d.color}">${isOpen ? '−' : '+'}</span>
+      </div>
+      <div class="exercise-detail">
+        <div class="ex-desc">${ex.desc}</div>
+        <div class="ex-box" style="background:${hexAlpha(SAGE,'14')};border-left:2px solid ${SAGE}">
+          <div class="ex-box-label" style="color:${SAGE}">CHARGE / RÉGLAGE CONSEILLÉ</div>
+          <div class="ex-box-text">${ex.weight}</div>
+        </div>
+        <div class="ex-box" style="background:${CARD2};border-left:2px solid ${d.color}">
+          <div class="ex-box-label" style="color:${d.color}">CONSEIL TECHNIQUE</div>
+          <div class="ex-box-text">${ex.tip}</div>
+        </div>
+        <div class="ex-box" style="background:${CARD2}">
+          <div class="ex-box-label" style="color:${MUTED}">POURQUOI CET EXERCICE</div>
+          <div class="ex-box-text">${ex.why}</div>
+        </div>
+        <div class="ex-chips">
+          <span class="ex-chip" style="background:${hexAlpha(d.color,'14')};color:${d.color};border:1px solid ${hexAlpha(d.color,'33')}">Repos ${ex.rest}</span>
+          <span class="ex-chip" style="background:${hexAlpha(SAGE,'14')};color:${SAGE};border:1px solid ${hexAlpha(SAGE,'33')}">${ex.muscles}</span>
+        </div>
+      </div>
+    `;
+    card.querySelector('.exercise-row').onclick = () => toggleExercise(i);
+    wrap.appendChild(card);
+  });
+
+  const cardioNote = document.createElement('div');
+  cardioNote.className = 'cardio-note';
+  cardioNote.style.background = hexAlpha(SAGE,'14');
+  cardioNote.style.borderColor = hexAlpha(SAGE,'55');
+  cardioNote.innerHTML = `<strong style="color:${SAGE}">Cardio de la séance — </strong>${d.cardio}`;
+  wrap.appendChild(cardioNote);
+}
+
+function renderNutrition() {
+  const d = days[selectedDay];
+  const wrap = document.getElementById('nutritionWrap');
+  const n = d.nutrition;
+  wrap.innerHTML = `
+    <div class="nutri-stats">
+      <div class="nutri-stat" style="background:${hexAlpha(d.color,'10')};border:1px solid ${hexAlpha(d.color,'33')}">
+        <div class="nutri-stat-label">CALORIES</div>
+        <div class="nutri-stat-value" style="color:${d.color}">${n.calories}</div>
+      </div>
+      <div class="nutri-stat" style="background:${hexAlpha(SAGE,'10')};border:1px solid ${hexAlpha(SAGE,'33')}">
+        <div class="nutri-stat-label">PROTÉINES</div>
+        <div class="nutri-stat-value" style="color:${SAGE}">${n.proteines}</div>
+      </div>
+    </div>
+    ${[
+      ['Petit-déjeuner', n.petit_dej],
+      ['Déjeuner', n.dejeuner],
+      ['Collation', n.collation],
+      ['Dîner', n.diner],
+      ['Hydratation', n.hydratation],
+    ].map(([label, value]) => `
+      <div class="meal-card">
+        <div class="meal-label" style="color:${d.color}">${label}</div>
+        <div class="meal-value">${value}</div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function renderPrinciples() {
+  const palette = [ACCENT, SAGE, "#9b7ee8", "#e8a23a", "#4fa8d8", "#e8632f", SAGE, "#9b7ee8"];
+  const wrap = document.getElementById('principlesWrap');
+  wrap.innerHTML = principles.map((p, i) => {
+    const c = palette[i % palette.length];
+    return `
+      <div class="principle-row" style="background:${hexAlpha(c,'0d')};border-left:3px solid ${c}">
+        <div class="principle-label-col">
+          <div class="principle-label">${p.label}</div>
+          <div class="principle-value" style="color:${c}">${p.value}</div>
+        </div>
+        <div class="principle-detail">${p.detail}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAll() {
+  renderHero();
+  renderDaySelector();
+  renderDayCard();
+  renderTabs();
+  renderExercises();
+  renderNutrition();
+}
+
+// ---- SECTION SWITCHING ----
+let currentSection = 'programme';
+
+function setSection(section) {
+  currentSection = section;
+  document.getElementById('sectionProgramme').style.display = section === 'programme' ? 'block' : 'none';
+  document.getElementById('sectionMilkshakes').style.display = section === 'milkshakes' ? 'block' : 'none';
+  document.getElementById('sectionCourses').style.display = section === 'courses' ? 'block' : 'none';
+  ['navProgramme','navMilkshakes','navCourses'].forEach(id => {
+    document.getElementById(id).classList.remove('active');
+  });
+  document.getElementById('nav' + section.charAt(0).toUpperCase() + section.slice(1)).classList.add('active');
+  if (section === 'milkshakes') renderMilkshakes();
+  if (section === 'courses') renderCourses();
+}
+
+// ---- MILKSHAKES DATA ----
+const timingData = [
+  { moment: "Avant la séance", icon: "⏱", color: "#e8a23a", quoi: "Rien de spécial — juste un repas normal 1h30 avant", detail: "Petit-déj ou déjeuner classique selon l'heure. Évite de manger juste avant, tu pourrais avoir des crampes." },
+  { moment: "Juste après la séance", icon: "⚡", color: "#e8632f", quoi: "Shaker whey (30g) dans les 30 min après l'effort", detail: "C'est la fenêtre anabolique — tes muscles absorbent mieux les protéines juste après l'effort. Mélange avec de l'eau ou du lait écrémé. C'est ta collation des jours lundi, mercredi, vendredi." },
+  { moment: "Le soir", icon: "🌙", color: "#9b7ee8", quoi: "Fromage blanc 0% ou milkshake banane (pas de whey)", detail: "La whey est rapide à digérer, pas idéale juste avant de dormir. Le fromage blanc est à digestion lente — parfait pour nourrir les muscles toute la nuit." },
+  { moment: "Jours de repos", icon: "😴", color: "#5f9e72", quoi: "Pas de whey nécessaire — fromage blanc à la place", detail: "Sans entraînement, tu n'as pas besoin de l'absorption rapide de la whey. Le fromage blanc et les œufs couvrent tes besoins en protéines sans les calories en plus." },
+];
+
+const milkshakesData = [
+  { name: "Whey classique post-training", icon: "💪", cal: "≈ 120 kcal", prot: "24 g", color: "#e8632f",
+    quand: "Dans les 30 min après lundi, mercredi ou vendredi",
+    ingredients: "30g de whey (1 dosette) + 250 ml d'eau froide ou lait écrémé",
+    prep: "Mets la whey dans le shaker, ajoute le liquide, secoue 10 secondes. C'est tout. Tu peux aussi ajouter un peu de glace pour que ce soit plus frais après l'effort." },
+  { name: "Milkshake banane classique", icon: "🍌", cal: "≈ 210 kcal", prot: "15 g", color: "#e8a23a",
+    quand: "En collation les jours mardi/jeudi/samedi, ou le soir",
+    ingredients: "30g whey + 1 banane congelée + 200 ml lait écrémé",
+    prep: "Mixe tous les ingrédients. La banane congelée donne une texture épaisse et froide sans ajouter de glace. Si pas de mixeur, écrase la banane à la fourchette et secoue dans le shaker." },
+  { name: "Milkshake banane-cacao", icon: "🍫", cal: "≈ 225 kcal", prot: "16 g", color: "#9b7ee8",
+    quand: "En collation ou comme dessert léger le soir",
+    ingredients: "30g whey + 1 banane + 200 ml lait écrémé + 1 c.à.c cacao non sucré",
+    prep: "Mixe tout ensemble. Le cacao donne un vrai goût chocolat sans sucre. Si tu veux plus épais, ajoute 100g de fromage blanc." },
+  { name: "Milkshake café protéiné", icon: "☕", cal: "≈ 190 kcal", prot: "25 g", color: "#5f9e72",
+    quand: "Le matin à la place du petit-déj si tu es pressé, ou avant la séance",
+    ingredients: "30g whey + 1 café soluble froid + 200 ml lait écrémé + 1/2 banane",
+    prep: "Mixe ou secoue dans le shaker avec quelques glaçons. Caféine + protéines = combo parfait avant l'effort pour booster les performances." },
+  { name: "Milkshake fromage blanc nuit", icon: "🌙", cal: "≈ 175 kcal", prot: "22 g", color: "#c98a4a",
+    quand: "30 min avant de dormir (tous les soirs)",
+    ingredients: "200g fromage blanc 0% + 100 ml lait écrémé + 1/2 banane + cannelle",
+    prep: "Mixe ou mélange à la fourchette. Le fromage blanc est à digestion lente — il nourrit tes muscles pendant toute la nuit, bien mieux que la whey pour le soir." },
+];
+
+// ---- COURSES DATA ----
+const coursesCategories = [
+  { name: "Protéines", icon: "🥩", color: "#e8632f", items: [
+    { name: "Filet de poulet (gros conditionnement)", qty: "1,6 kg", price: "≈ 14 €" },
+    { name: "Escalope de dinde", qty: "500g (en complément du poulet)", price: "≈ 5 €" },
+    { name: "Œufs calibre moyen", qty: "5 boîtes de 12 (60 œufs)", price: "≈ 16 €" },
+    { name: "Thon au naturel en boîte (140g)", qty: "4 boîtes", price: "≈ 7 €" },
+    { name: "Lentilles sèches", qty: "1 paquet 500g", price: "≈ 1,50 €" },
+    { name: "Fromage blanc 0% (ou normal)", qty: "3 kg au total", price: "≈ 7 €" },
+    { name: "Whey protéine (si dispo)", qty: "1 boîte — dure plusieurs semaines", price: "≈ 25-35 €" },
+  ]},
+  { name: "Féculents", icon: "🍚", color: "#e8a23a", items: [
+    { name: "Riz long grain", qty: "1,5 kg", price: "≈ 2 €" },
+    { name: "Pâtes", qty: "1 kg", price: "≈ 1,20 €" },
+    { name: "Flocons d'avoine", qty: "1 paquet 1kg", price: "≈ 1,80 €" },
+    { name: "Pain de mie complet", qty: "1 paquet", price: "≈ 2,20 €" },
+  ]},
+  { name: "Légumes", icon: "🥦", color: "#5f9e72", items: [
+    { name: "Légumes surgelés (mélange / brocoli / haricots verts)", qty: "2 sacs 1kg", price: "≈ 5 €" },
+    { name: "Courgettes (pour le combo œuf/patate)", qty: "4 courgettes", price: "≈ 2 €" },
+    { name: "Sauce tomate", qty: "1 bouteille", price: "≈ 1,50 €" },
+  ]},
+  { name: "Fruits", icon: "🍌", color: "#9b7ee8", items: [
+    { name: "Bananes (dont quelques-unes à congeler)", qty: "2,5 kg", price: "≈ 3 €" },
+  ]},
+  { name: "Milkshakes & Boissons", icon: "🥤", color: "#4fa8d8", items: [
+    { name: "Lait écrémé (pour les milkshakes)", qty: "2 L", price: "≈ 2 €" },
+    { name: "Cacao en poudre non sucré", qty: "1 petit pot", price: "≈ 2,50 €" },
+    { name: "Yaourts nature 0%", qty: "1 pack de 8", price: "≈ 2 €" },
+  ]},
+  { name: "Épicerie", icon: "🧂", color: "#c98a4a", items: [
+    { name: "Huile d'olive", qty: "1 bouteille", price: "≈ 3-4 €" },
+    { name: "Miel", qty: "1 petit pot", price: "≈ 3 €" },
+    { name: "Moutarde", qty: "1 pot", price: "≈ 1,50 €" },
+    { name: "Citron", qty: "2-3 citrons", price: "≈ 1,50 €" },
+    { name: "Pommes de terre (pour le combo soir)", qty: "1,5 kg", price: "≈ 2 €" },
+  ]},
+];
+
+let coursesChecked = {};
+
+function renderMilkshakes() {
+  const wrap = document.getElementById('milkshakesWrap');
+  let html = '';
+
+  // Timing section
+  html += `<div style="font-size:13px;color:#5f9e72;font-weight:800;letter-spacing:1px;margin-bottom:10px;">⏰ QUAND PRENDRE QUOI</div>`;
+  timingData.forEach(t => {
+    html += `<div style="background:#fbf5ec;border-radius:14px;margin-bottom:10px;padding:14px 16px;border-left:4px solid ${t.color};border:1px solid ${t.color}33;border-left-width:4px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:18px;">${t.icon}</span>
+        <span style="font-weight:800;font-size:14px;color:${t.color};">${t.moment}</span>
+      </div>
+      <div style="font-weight:700;font-size:13px;color:#2b2622;margin-bottom:4px;">${t.quoi}</div>
+      <div style="font-size:12.5px;color:#5a5249;line-height:1.5;">${t.detail}</div>
+    </div>`;
+  });
+
+  // Recipes section
+  html += `<div style="font-size:13px;color:#5f9e72;font-weight:800;letter-spacing:1px;margin:20px 0 10px;">🥤 LES RECETTES</div>`;
+  milkshakesData.forEach(m => {
+    html += `<div style="background:#fbf5ec;border-radius:14px;margin-bottom:12px;padding:16px;border:1px solid ${m.color}33;border-left:4px solid ${m.color};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div style="font-size:15px;font-weight:800;color:${m.color};">${m.icon} ${m.name}</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <span style="background:${m.color}14;border:1px solid ${m.color}33;border-radius:20px;padding:3px 10px;font-size:11.5px;font-weight:700;color:${m.color};">${m.cal}</span>
+        <span style="background:#5f9e7214;border:1px solid #5f9e7233;border-radius:20px;padding:3px 10px;font-size:11.5px;font-weight:700;color:#5f9e72;">${m.prot} protéines</span>
+      </div>
+      <div style="background:#e9dcc8;border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12px;color:#5a5249;"><strong style="color:#8a8073;">🕐 Quand : </strong>${m.quand}</div>
+      <div style="font-size:12.5px;color:#4a4339;margin-bottom:6px;line-height:1.5;"><strong style="color:#8a8073;">Ingrédients : </strong>${m.ingredients}</div>
+      <div style="font-size:12.5px;color:#4a4339;line-height:1.5;"><strong style="color:#8a8073;">Préparation : </strong>${m.prep}</div>
+    </div>`;
+  });
+
+  wrap.innerHTML = html;
+}
+
+function renderCourses() {
+  const wrap = document.getElementById('coursesWrap');
+  let html = '';
+  coursesCategories.forEach((cat, ci) => {
+    html += `<div style="margin-bottom:18px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:18px;">${cat.icon}</span>
+        <span style="font-size:14px;font-weight:800;color:${cat.color};">${cat.name}</span>
+      </div>`;
+    cat.items.forEach((item, ii) => {
+      const key = `${ci}-${ii}`;
+      const isChecked = !!coursesChecked[key];
+      html += `<div onclick="toggleCourse('${key}')" style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:#fbf5ec;border-radius:10px;margin-bottom:6px;cursor:pointer;border:1px solid ${isChecked ? cat.color+'55' : '#ddccb2'};opacity:${isChecked?0.5:1};">
+        <span style="width:18px;height:18px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid ${isChecked?cat.color:'#8a8073'};background:${isChecked?cat.color:'transparent'};color:#fff;font-size:11px;font-weight:900;">${isChecked?'✓':''}</span>
+        <div style="flex:1;">
+          <div style="font-size:13.5px;font-weight:700;color:#2b2622;text-decoration:${isChecked?'line-through':'none'};">${item.name}</div>
+          <div style="font-size:11.5px;color:#9b7a5a;">${item.qty}</div>
+        </div>
+        <div style="font-size:12.5px;font-weight:800;color:${cat.color};white-space:nowrap;">${item.price}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `<div style="background:#5f9e7214;border-radius:12px;padding:14px 16px;margin-top:8px;border:1px dashed #5f9e7255;">
+    <div style="font-size:11px;color:#5f9e72;font-weight:800;letter-spacing:0.5px;margin-bottom:6px;">ASTUCES BUDGET</div>
+    <div style="font-size:12.5px;color:#3f6b4d;line-height:1.6;">Congèle quelques bananes bien mûres en morceaux pour les milkshakes — texture parfaite sans glaçons. Achète le poulet en gros conditionnement. Vérifie les dates courtes en fin de journée sur la viande — souvent -30%, à congeler direct. Lidl et Aldi sont généralement les moins chers sur ces produits.</div>
+  </div>`;
+
+  wrap.innerHTML = html;
+}
+
+function toggleCourse(key) {
+  coursesChecked[key] = !coursesChecked[key];
+  renderCourses();
+}
+
+renderAll();
+renderPrinciples();
+</script>
+
+</body>
+</html>
